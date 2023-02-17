@@ -22,7 +22,7 @@ const Home = ({ characters}) => {
         </div>
         <div className={styles.list}>
           {characters && characters.map((character, index) => (
-            <Link href={"/characters/"+index}>
+            <Link href={"/characters/"+character.id} data-year={character.birth_year}>
               <p>{character.name}</p>
             </Link>
           ))}
