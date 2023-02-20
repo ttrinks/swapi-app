@@ -1,0 +1,13 @@
+$sw_yellow:#FFD700!default;
+
+.details {
+  font-family: var(--font-mono);
+  color: $sw_yellow;
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.8rem;
+  list-style-type: none;
+  max-width: 600px;
+  text-align: left;
+}

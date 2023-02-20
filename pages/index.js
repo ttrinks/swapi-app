@@ -1,10 +1,10 @@
 import Head from 'next/head'
 import { Inter } from '@next/font/google'
-import styles from '@/styles/Home.module.css'
+import styles from '@/styles/Home.module.scss'
 import Link from 'next/link'
 import React, { useState, useEffect } from "react";
 
-import { fetchAllDataParallel } from "../lib/swapiApi";
+import { fetchAndCacheData } from "../lib/swapiApi";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -33,60 +33,75 @@ const Home = ({ characters, species, movies }) => {
   return (
     <>
       <Head>
-        <title>Star Wars character lookup</title>
+        <title>Star Wars character list</title>
         <meta name="description" content="Filterable lookup for Star Wars characters" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <h1>Star Wars character Lookup</h1>
+      <main className="main">
+        <div className="headline">
+          <h1>Star Wars character list</h1>
         </div>
 
-        <div>
-        <form>
-          <label htmlFor="movie">movie:</label>
-          <select id="movie" name="movie" value={filter.movie} onChange={handleFilterChange}>
-            <option value="">All</option>
-            {movies.map((movie, index) => (
-              <option value={movie.url} key={"movies-option-"+index}>{`Epsisode ${movie.episode} – ${movie.title}`}</option>
-            ))}
-          </select>
-          <br />
-          <label htmlFor="species">species:</label>
-          <select id="species" name="species" value={filter.species} onChange={handleFilterChange}>
-            <option value="">All</option>
-            {species.map((specie, index) => (
-              <option value={specie.url} key={"species-option-"+index}>{specie.name}</option>
-            ))}
-          </select>
-          <br />
-          <label htmlFor="birthYearMin">Birth Year Range:</label>
-          <input
-            type="range"
-            id="birthYearMin"
-            name="birthYearMin"
-            min="-1000"
-            max="0"
-            value={filter.birthYearMin}
-            onChange={handleFilterChange}
-          />
-          <input
-            type="range"
-            id="birthYearMax"
-            name="birthYearMax"
-            min="0"
-            max="1000"
-            value={filter.birthYearMax}
-            onChange={handleFilterChange}
-          />
+        <div className={styles.filters_container}>
+        <form className={styles.filters}>
+          <div>
+            <label>Movie:</label>
+            <select id="movie" name="movie" value={filter.movie} onChange={handleFilterChange}>
+              <option value="">All</option>
+              {movies.map((movie, index) => (
+                <option value={movie.url} key={"movies-option-"+index}>{`Epsisode ${movie.episode}: ${movie.title}`}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label>Species:</label>
+            <select id="species" name="species" value={filter.species} onChange={handleFilterChange}>
+              <option value="">All</option>
+              {species.map((specie, index) => (
+                <option value={specie.url} key={"species-option-"+index}>{specie.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="range_container">
+            <div className="sliders_control">
+            <label>Year of birth:</label>
+              <input
+                type="range"
+                id="fromSlider"
+                name="birthYearMin"
+                min="-1000"
+                max="1000"
+                value={filter.birthYearMin}
+                onChange={handleFilterChange}
+              />
+              <input
+                type="range"
+                id="toSlider"
+                name="birthYearMax"
+                min="-1000"
+                max="1000"
+                value={filter.birthYearMax}
+                onChange={handleFilterChange}
+              />
+              <div className={styles.labels}>
+                <span className={styles.label}>1000 ABY</span>
+                <span className={styles.label}>500 BBY</span>
+                <span className={styles.label}>0 ABY</span>
+                <span className={styles.label}>500 ABY</span>
+                <span className={styles.label}>1000 BBY</span>
+              </div>
+            </div>
+          </div>
+
         </form>
         </div>
-
+        
         <ul className={styles.list}>
           {filteredCharacters.map((character, index) => (
-            <li>
-              <Link key={"character-"+index} href={"/characters/"+character.id} data-year={character.birth_year}>
+            <li key={"character-"+index}>
+              <Link href={"/characters/"+character.id} data-year={character.birth_year}>
                 <p>{character.name}</p>
               </Link>
             </li>
@@ -100,9 +115,9 @@ const Home = ({ characters, species, movies }) => {
 export async function getStaticProps() {
 
   const [peopleRes, speciesRes, filmsRes] = await Promise.all([
-    fetchAllDataParallel("/people"),
-    fetchAllDataParallel("/species"),
-    fetchAllDataParallel("/films"),
+    fetchAndCacheData("/people"),
+    fetchAndCacheData("/species"),
+    fetchAndCacheData("/films"),
   ]);
 
   return {
